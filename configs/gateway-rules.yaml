@@ -1,0 +1,323 @@
+gateway_rules:
+  # Stripe ecosystem (priority focus)
+  stripe:
+    name: "Stripe"
+    type: "payment_processor"
+    patterns:
+      - "js.stripe.com"
+      - "stripe.com/v3"
+      - "stripe-public-key"
+      - "pk_live_"
+      - "pk_test_"
+      - "Stripe.js"
+      - "StripeCheckout"
+    dom_selectors:
+      - "[data-stripe]"
+      - ".stripe-button"
+      - "#stripe-elements"
+    url_patterns:
+      - "*/stripe/*"
+      - "*/payment/stripe*"
+    confidence: 0.95
+    require_js: true
+    category: "payment_processor"
+    description: "Stripe payment processing integration"
+
+  stripe_billing:
+    name: "Stripe Billing"
+    type: "subscription_billing"
+    patterns:
+      - "billing.stripe.com"
+      - "stripe.com/billing"
+      - "stripe-billing"
+      - "subscription"
+    confidence: 0.90
+    require_js: true
+    category: "billing"
+    description: "Stripe subscription and billing management"
+
+  checkout_stripe:
+    name: "Stripe Checkout"
+    type: "checkout_solution"
+    patterns:
+      - "checkout.stripe.com"
+      - "stripe.com/checkout"
+      - "StripeCheckout.configure"
+      - "stripe-checkout"
+    confidence: 0.95
+    require_js: true
+    category: "checkout"
+    description: "Stripe hosted checkout solution"
+
+  # PayPal ecosystem
+  paypal:
+    name: "PayPal"
+    type: "payment_processor"
+    patterns:
+      - "www.paypal.com/sdk/js"
+      - "paypal.com/checkout"
+      - "paypal-button"
+      - "paypal-checkout"
+      - "PayPal.Checkout"
+      - "data-funding-source=\"paypal\""
+    dom_selectors:
+      - ".paypal-button"
+      - "[data-paypal-button]"
+      - "#paypal-button-container"
+    confidence: 0.90
+    require_js: true
+    category: "payment_processor"
+    description: "PayPal payment processing"
+
+  # Square ecosystem
+  square:
+    name: "Square"
+    type: "payment_processor"
+    patterns:
+      - "js.squareup.com"
+      - "web-payments-sdk"
+      - "Square.payments"
+      - "sq-payment-form"
+      - "squareup.com/payment-form"
+    dom_selectors:
+      - ".sq-input"
+      - "#sq-card-number"
+      - ".square-payment-form"
+    confidence: 0.85
+    require_js: true
+    category: "payment_processor"
+    description: "Square payment processing"
+
+  # Other major gateways
+  authorize_net:
+    name: "Authorize.Net"
+    type: "payment_processor"
+    patterns:
+      - "secure.authorize.net"
+      - "jstest.authorize.net"
+      - "js.authorize.net"
+      - "Accept.js"
+      - "authorize-net"
+    confidence: 0.80
+    require_js: false
+    category: "payment_processor"
+    description: "Authorize.Net payment gateway"
+
+  braintree:
+    name: "Braintree"
+    type: "payment_processor"
+    patterns:
+      - "assets.braintreegateway.com"
+      - "js.braintreegateway.com"
+      - "braintree.create"
+      - "data-braintree"
+      - "braintree-web"
+    dom_selectors:
+      - "[data-braintree-name]"
+      - ".braintree-form"
+    confidence: 0.85
+    require_js: true
+    category: "payment_processor"
+    description: "Braintree payment processing (PayPal owned)"
+
+  razorpay:
+    name: "Razorpay"
+    type: "payment_processor"
+    patterns:
+      - "checkout.razorpay.com"
+      - "razorpay.com/checkout"
+      - "Razorpay.open"
+      - "razorpay-payment-button"
+      - "data-key="
+    confidence: 0.85
+    require_js: true
+    category: "payment_processor"
+    description: "Razorpay payment gateway (India)"
+
+  mollie:
+    name: "Mollie"
+    type: "payment_processor"
+    patterns:
+      - "js.mollie.com"
+      - "mollie.com/checkout"
+      - "mollie-components"
+      - "data-mollie"
+    confidence: 0.80
+    require_js: true
+    category: "payment_processor"
+    description: "Mollie payment processing (Europe)"
+
+  adyen:
+    name: "Adyen"
+    type: "payment_processor"
+    patterns:
+      - "checkoutshopper-live.adyen.com"
+      - "checkoutshopper-test.adyen.com"
+      - "adyen.com/library"
+      - "AdyenCheckout"
+      - "adyen-checkout"
+    confidence: 0.85
+    require_js: true
+    category: "payment_processor"
+    description: "Adyen payment platform"
+
+  # Cryptocurrency gateways
+  coinbase:
+    name: "Coinbase Commerce"
+    type: "crypto_payment"
+    patterns:
+      - "commerce.coinbase.com"
+      - "coinbase-commerce"
+      - "coinbase.commerce"
+      - "data-code="
+    confidence: 0.80
+    require_js: false
+    category: "cryptocurrency"
+    description: "Coinbase cryptocurrency payments"
+
+  bitpay:
+    name: "BitPay"
+    type: "crypto_payment"
+    patterns:
+      - "bitpay.com/invoice"
+      - "test.bitpay.com"
+      - "bitpay-button"
+      - "data-bitpay"
+    confidence: 0.80
+    require_js: false
+    category: "cryptocurrency"
+    description: "BitPay cryptocurrency gateway"
+
+  # Regional gateways
+  payu:
+    name: "PayU"
+    type: "payment_processor"
+    patterns:
+      - "secure.payu.com"
+      - "payu.in"
+      - "payumoney.com"
+      - "payu-payment"
+    confidence: 0.75
+    require_js: false
+    category: "payment_processor"
+    description: "PayU payment gateway (Global)"
+
+  klarna:
+    name: "Klarna"
+    type: "bnpl_processor"
+    patterns:
+      - "x.klarnacdn.net"
+      - "klarna.com/us/shopping"
+      - "klarna-payments"
+      - "data-purchase-country"
+    confidence: 0.80
+    require_js: true
+    category: "buy_now_pay_later"
+    description: "Klarna buy now pay later"
+
+  affirm:
+    name: "Affirm"
+    type: "bnpl_processor"
+    patterns:
+      - "cdn1.affirm.com"
+      - "affirm.com/js"
+      - "affirm-payment"
+      - "data-affirm"
+    confidence: 0.80
+    require_js: true
+    category: "buy_now_pay_later"
+    description: "Affirm buy now pay later"
+
+  # E-commerce platforms with built-in payments
+  shopify_payments:
+    name: "Shopify Payments"
+    type: "platform_payment"
+    patterns:
+      - "checkout.shopifycs.com"
+      - "shopify.com/payments"
+      - "Shopify.Checkout"
+      - "shopify-pay"
+    confidence: 0.85
+    require_js: true
+    category: "ecommerce_platform"
+    description: "Shopify integrated payments"
+
+  woocommerce:
+    name: "WooCommerce"
+    type: "platform_payment"
+    patterns:
+      - "woocommerce"
+      - "wc-checkout"
+      - "wp-content/plugins/woocommerce"
+      - "wc-ajax=checkout"
+    confidence: 0.70
+    require_js: false
+    category: "ecommerce_platform"
+    description: "WooCommerce WordPress plugin"
+
+  # Apple Pay / Google Pay (often used with other gateways)
+  apple_pay:
+    name: "Apple Pay"
+    type: "digital_wallet"
+    patterns:
+      - "apple-pay-button"
+      - "ApplePaySession"
+      - "-webkit-appearance: -apple-pay-button"
+      - "data-apple-pay"
+    confidence: 0.90
+    require_js: true
+    category: "digital_wallet"
+    description: "Apple Pay integration"
+
+  google_pay:
+    name: "Google Pay"
+    type: "digital_wallet"
+    patterns:
+      - "pay.google.com"
+      - "google-pay-button"
+      - "GooglePayButton"
+      - "data-google-pay"
+    confidence: 0.90
+    require_js: true
+    category: "digital_wallet"
+    description: "Google Pay integration"
+
+# Rate limiting configuration per gateway
+rate_limits:
+  stripe: 2000ms
+  paypal: 1500ms
+  square: 2000ms
+  authorize_net: 3000ms
+  braintree: 2000ms
+  razorpay: 1000ms
+  mollie: 2000ms
+  adyen: 2500ms
+  coinbase: 3000ms
+  bitpay: 2000ms
+  default: 1000ms
+
+# User agents optimized for payment gateway detection
+user_agents:
+  - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+  - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+  - "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
+  - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15"
+  - "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+
+# Domain categories for targeted scanning
+target_categories:
+  proxies:
+    keywords: ["proxy", "vpn", "anonymizer", "hide", "ip"]
+    priority: high
+  tools:
+    keywords: ["tool", "utility", "software", "app"]
+    priority: medium
+  ai_agents:
+    keywords: ["ai", "artificial intelligence", "chatbot", "gpt", "llm"]
+    priority: high
+  programming:
+    keywords: ["code", "dev", "programming", "github", "developer"]
+    priority: high
+  ide:
+    keywords: ["ide", "editor", "vscode", "jetbrains"]
+    priority: medium

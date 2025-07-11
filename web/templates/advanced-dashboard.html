@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Gateway Scraper - Advanced Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+    <style>
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .activity-item {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+            margin-bottom: 10px;
+        }
+        .proxy-item {
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Enhanced Gateway Scraper</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#proxies">Proxies</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#gateways">Gateways</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- System Status -->
+        <div class="row">
+            <div class="col-md-12">
+                <div id="system-status" class="alert alert-success" role="alert">
+                    <strong>System Status:</strong> <span id="status-text">Online</span> | 
+                    <span id="uptime">Uptime: 12h 30m</span> | 
+                    <span id="version">Version: 1.0.0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <h5>Total Proxies</h5>
+                    <h2 id="total-proxies">1,250</h2>
+                    <small>Working: <span id="working-proxies">987</span></small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <h5>Gateways Found</h5>
+                    <h2 id="gateways-found">45</h2>
+                    <small>This session</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <h5>Success Rate</h5>
+                    <h2 id="success-rate">87%</h2>
+                    <small>Last 24h</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <h5>Current CPM</h5>
+                    <h2 id="current-cpm">450</h2>
+                    <small>Checks per minute</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Control Panel</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button id="start-proxy-scrape" class="btn btn-primary w-100 mb-2">Start Proxy Scraping</button>
+                                <button id="start-gateway-scan" class="btn btn-info w-100 mb-2">Start Gateway Scanning</button>
+                                <button id="start-check" class="btn btn-success w-100">Start Account Checking</button>
+                            </div>
+                            <div class="col-md-4">
+                                <button id="stop-all" class="btn btn-danger w-100 mb-2">Stop All Operations</button>
+                                <button id="refresh-data" class="btn btn-secondary w-100 mb-2">Refresh Data</button>
+                                <button id="export-results" class="btn btn-warning w-100">Export Results</button>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="workers-count">Workers:</label>
+                                    <input type="number" id="workers-count" class="form-control" value="100" min="1" max="500">
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="scan-domains">Domains to scan:</label>
+                                    <input type="number" id="scan-domains" class="form-control" value="50" min="5" max="500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Tables -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Recent Proxies</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        <div id="proxies-list">
+                            <!-- Proxy items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Detected Gateways</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        <div id="gateways-list">
+                            <!-- Gateway items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Live Activity Log</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        <div id="activity-log">
+                            <!-- Activity items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Update system status
+            function updateSystemStatus() {
+                fetch('/api/v1/health')
+                    .then(response => response.json())
+                    .then(data => {
+                        $('#status-text').text(data.status);
+                        $('#uptime').text('Uptime: ' + data.uptime);
+                        $('#version').text('Version: ' + data.version);
+                        
+                        const alertClass = data.status === 'healthy' ? 'alert-success' : 'alert-danger';
+                        $('#system-status').removeClass('alert-success alert-danger').addClass(alertClass);
+                    });
+            }
+
+            // Update metrics
+            function updateMetrics() {
+                fetch('/api/v1/metrics')
+                    .then(response => response.json())
+                    .then(data => {
+                        $('#total-proxies').text(data.proxies_total.toLocaleString());
+                        $('#working-proxies').text(data.proxies_working.toLocaleString());
+                        $('#gateways-found').text(data.gateways_found);
+                        $('#success-rate').text((data.success_rate * 100).toFixed(0) + '%');
+                    });
+                
+                fetch('/api/v1/stats')
+                    .then(response => response.json())
+                    .then(data => {
+                        $('#current-cpm').text(data.current_cpm.toFixed(0));
+                    });
+            }
+
+            // Update proxies list
+            function updateProxiesList() {
+                fetch('/api/v1/proxies')
+                    .then(response => response.json())
+                    .then(data => {
+                        const proxiesList = $('#proxies-list');
+                        proxiesList.empty();
+                        
+                        data.proxies.forEach(proxy => {
+                            const qualityColor = proxy.quality >= 90 ? 'success' : 
+                                                proxy.quality >= 70 ? 'warning' : 'danger';
+                            
+                            const proxyItem = $(`
+                                <div class="proxy-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span><strong>${proxy.host}:${proxy.port}</strong></span>
+                                        <span class="badge bg-${qualityColor}">${proxy.quality}%</span>
+                                    </div>
+                                    <small class="text-muted">${proxy.type.toUpperCase()} | ${proxy.latency}ms</small>
+                                </div>
+                            `);
+                            proxiesList.append(proxyItem);
+                        });
+                    });
+            }
+
+            // Update gateways list
+            function updateGatewaysList() {
+                fetch('/api/v1/gateways')
+                    .then(response => response.json())
+                    .then(data => {
+                        const gatewaysList = $('#gateways-list');
+                        gatewaysList.empty();
+                        
+                        data.gateways.forEach(gateway => {
+                            const confidenceColor = gateway.confidence >= 0.9 ? 'success' : 
+                                                   gateway.confidence >= 0.7 ? 'warning' : 'info';
+                            
+                            const gatewayItem = $(`
+                                <div class="proxy-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span><strong>${gateway.domain}</strong></span>
+                                        <span class="badge bg-${confidenceColor}">${(gateway.confidence * 100).toFixed(0)}%</span>
+                                    </div>
+                                    <small class="text-muted">${gateway.gateway.toUpperCase()}</small>
+                                </div>
+                            `);
+                            gatewaysList.append(gatewayItem);
+                        });
+                    });
+            }
+
+            // Log activity
+            function logActivity(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const typeIcon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+                
+                const activityItem = $(`
+                    <div class="activity-item">
+                        <small class="text-muted">${timestamp}</small>
+                        <span class="ms-2">${typeIcon} ${message}</span>
+                    </div>
+                `);
+                
+                $('#activity-log').prepend(activityItem);
+                
+                // Keep only last 50 items
+                $('#activity-log .activity-item').slice(50).remove();
+            }
+
+            // Button event handlers
+            $('#start-proxy-scrape').click(function() {
+                fetch('/api/v1/proxies/scrape', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        logActivity('Proxy scraping started - Job ID: ' + data.job_id, 'success');
+                    });
+            });
+
+            $('#start-gateway-scan').click(function() {
+                const domains = $('#scan-domains').val();
+                fetch('/api/v1/gateways/scan', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domains: parseInt(domains) })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        logActivity(`Gateway scanning started for ${domains} domains - Job ID: ${data.job_id}`, 'success');
+                    });
+            });
+
+            $('#start-check').click(function() {
+                const workers = $('#workers-count').val();
+                fetch('/api/v1/check/start', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ workers: parseInt(workers) })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        logActivity(`Account checking started with ${workers} workers - Session ID: ${data.session_id}`, 'success');
+                    });
+            });
+
+            $('#stop-all').click(function() {
+                fetch('/api/v1/check/stop', { method: 'POST' })
+                    .then(() => {
+                        logActivity('All operations stopped', 'error');
+                    });
+            });
+
+            $('#refresh-data').click(function() {
+                updateSystemStatus();
+                updateMetrics();
+                updateProxiesList();
+                updateGatewaysList();
+                logActivity('Data refreshed manually', 'info');
+            });
+
+            $('#export-results').click(function() {
+                logActivity('Exporting results...', 'info');
+                // Implement export functionality
+            });
+
+            // Auto-refresh every 5 seconds
+            setInterval(() => {
+                updateSystemStatus();
+                updateMetrics();
+                updateProxiesList();
+                updateGatewaysList();
+            }, 5000);
+
+            // Initial load
+            updateSystemStatus();
+            updateMetrics();
+            updateProxiesList();
+            updateGatewaysList();
+            logActivity('Dashboard initialized', 'success');
+        });
+    </script>
+</body>
+</html>

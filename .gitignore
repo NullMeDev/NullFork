@@ -1,0 +1,60 @@
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# Build outputs
+/dist
+/build
+/target
+
+# Dependencies
+/node_modules
+/vendor
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Data and backup directories
+/data
+/backups
+/results
+
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test coverage
+coverage/
+*.cover
+*.py,cover
+.coverage
+
+# Temporary files
+tmp/
+temp/
+
+# Configuration files with secrets
+config/secrets.yaml
+config/production.yaml

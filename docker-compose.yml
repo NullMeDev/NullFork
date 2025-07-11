@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+  # Main Enhanced Gateway Scraper application
+  gateway-scraper:
+    build: .
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      - CLICKHOUSE_DSN=clickhouse:9000
+      - DISCORD_WEBHOOK=https://discord.com/api/webhooks/1384600052970029217/kObxR_M65HSJIv-qUdAqQssFUV-Cl5M93yxUF1cY97xd-Q5soIfG7tvd08XhZ8Dp6fVt
+      - MAX_WORKERS=100
+      - PROXY_TIMEOUT=10s
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=JSON
+    depends_on:
+      - clickhouse
+      - redis
+    volumes:
+      - ./data:/app/data
+      - ./results:/app/results
+      - ./configs:/app/configs
+    restart: unless-stopped
+    networks:
+      - scraper-network
+
+  # ClickHouse Database
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - "8123:8123"
+      - "9001:9000"
+    environment:
+      - CLICKHOUSE_DB=gateway_scraper
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    restart: unless-stopped
+    networks:
+      - scraper-network
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - scraper-network
+
+  # Web GUI service
+  web-gui:
+    build:
+      context: .
+      dockerfile: Dockerfile.gui
+    ports:
+      - "8081:8081"
+    environment:
+      - API_BASE_URL=http://gateway-scraper:8080
+    depends_on:
+      - gateway-scraper
+    restart: unless-stopped
+    networks:
+      - scraper-network
+
+  # Proxy monitoring service
+  proxy-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile.monitor
+    environment:
+      - CLICKHOUSE_DSN=clickhouse:9000
+      - CHECK_INTERVAL=5m
+    depends_on:
+      - clickhouse
+    restart: unless-stopped
+    networks:
+      - scraper-network
+
+  # Nginx reverse proxy for load balancing
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - gateway-scraper
+      - web-gui
+    restart: unless-stopped
+    networks:
+      - scraper-network
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - scraper-network
+
+  # Grafana for monitoring dashboards
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - scraper-network
+
+volumes:
+  clickhouse_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  scraper-network:
+    driver: bridge
