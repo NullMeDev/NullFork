@@ -2,23 +2,29 @@ package main
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"enhanced-gateway-scraper/internal/config"
+	"enhanced-gateway-scraper/internal/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	// Configure logging
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetLevel(logrus.InfoLevel)
-	
-	logrus.Info("Starting Web GUI Service...")
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		logrus.WithError(err).Fatal("Failed to load configuration")
+	}
+
+	// Initialize logger with configuration
+	appLogger := logger.InitLogger(cfg.LogLevel, cfg.LogFormat, cfg.LogIncludeCaller)
+	appLogger.Info("Starting Web GUI Service...")
 
 	// Create Gin router
 	r := gin.Default()
@@ -52,16 +58,32 @@ func main() {
 		})
 	})
 
+	// Comprehensive dashboard endpoint
+	r.GET("/comprehensive", func(c *gin.Context) {
+		c.HTML(200, "comprehensive-dashboard.html", gin.H{
+			"title": "Comprehensive Dashboard",
+			"version": "1.0.0",
+		})
+	})
+
+	// NullGen-inspired dashboard
+	r.GET("/nullgen", func(c *gin.Context) {
+		c.HTML(200, "nullgen-dashboard.html", gin.H{
+			"title": "NullScrape - Gateway Scanner",
+			"version": "1.0.0",
+		})
+	})
+
 	// Start server
 	srv := &http.Server{
-		Addr:    ":8081",
+		Addr:    fmt.Sprintf(":%d", cfg.WebPort),
 		Handler: r,
 	}
 
 	go func() {
-		logrus.Info("Starting GUI server on port 8081")
+		appLogger.WithField("port", cfg.WebPort).Info("Starting GUI server")
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logrus.WithError(err).Fatal("Failed to start GUI server")
+			appLogger.WithError(err).Fatal("Failed to start GUI server")
 		}
 	}()
 
@@ -70,14 +92,14 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	logrus.Info("Shutting down GUI server...")
+	appLogger.Info("Shutting down GUI server...")
 	
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	
 	if err := srv.Shutdown(ctx); err != nil {
-		logrus.WithError(err).Fatal("Server forced to shutdown")
+		appLogger.WithError(err).Fatal("Server forced to shutdown")
 	}
 
-	logrus.Info("GUI service stopped")
+	appLogger.Info("GUI service stopped")
 }

@@ -243,6 +243,18 @@ type DatabaseConfig struct {
 	Options      map[string]string `json:"options" yaml:"options"`
 }
 
+// Metrics represents real-time application metrics
+type Metrics struct {
+	ChecksCompleted int       `json:"checks_completed"`
+	TotalScans      int       `json:"total_scans"`
+	CurrentCPM      float64   `json:"current_cpm"`
+	Errors24h       int       `json:"errors_24h"`
+	LastScan        time.Time `json:"last_scan"`
+	Progress        float64   `json:"progress"`
+	ValidAccounts   int       `json:"valid_accounts"`
+	TotalChecked    int       `json:"total_checked"`
+}
+
 // HTTPClient interface for testability
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)

@@ -1,0 +1,58 @@
+[
+  {
+    "timestamp": "2025-07-12T17:04:37-04:00",
+    "level": "info",
+    "caller": "main.main",
+    "file": "/home/null/enhanced-gateway-scraper/cmd/scraper/main.go:26",
+    "message": "Starting Enhanced Gateway Scraper...",
+    "fields": {}
+  },
+  {
+    "timestamp": "2025-07-12T17:04:37-04:00",
+    "level": "info",
+    "caller": "main.main",
+    "file": "/home/null/enhanced-gateway-scraper/cmd/scraper/main.go:42",
+    "message": "ClickHouse database connected successfully",
+    "fields": {}
+  },
+  {
+    "timestamp": "2025-07-12T17:04:37-04:00",
+    "level": "info",
+    "caller": "main.main.func1",
+    "file": "/home/null/enhanced-gateway-scraper/cmd/scraper/main.go:52",
+    "message": "Starting API server on port 8083",
+    "fields": {}
+  },
+  {
+    "timestamp": "2025-07-12T17:07:20-04:00",
+    "level": "info",
+    "caller": "enhanced-gateway-scraper/internal/api.(*APIServer).scanGatewaysHandler.func1",
+    "file": "/home/null/enhanced-gateway-scraper/internal/api/server.go:282",
+    "message": "Starting gateway scanning...",
+    "fields": {}
+  },
+  {
+    "timestamp": "2025-07-12T17:07:20-04:00",
+    "level": "info",
+    "caller": "enhanced-gateway-scraper/internal/api.(*APIServer).scanGatewaysHandler.func1",
+    "file": "/home/null/enhanced-gateway-scraper/internal/api/server.go:284",
+    "message": "Gateway scanning completed",
+    "fields": {}
+  },
+  {
+    "timestamp": "2025-07-12T17:20:59-04:00",
+    "level": "info",
+    "caller": "main.main",
+    "file": "/home/null/enhanced-gateway-scraper/cmd/gui/main.go:26",
+    "message": "Starting Web GUI Service...",
+    "fields": {}
+  },
+  {
+    "timestamp": "2025-07-12T17:20:59-04:00",
+    "level": "info",
+    "caller": "main.main.func5",
+    "file": "/home/null/enhanced-gateway-scraper/cmd/gui/main.go:75",
+    "message": "Starting GUI server on port 8081",
+    "fields": {}
+  }
+]

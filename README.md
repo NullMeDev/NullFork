@@ -1,5 +1,9 @@
 # NullScrape - Enhanced Gateway Scraper
 
+![Go](https://img.shields.io/badge/Go-1.16-blue)
+![Version](https://img.shields.io/badge/Version-1.2.0-green)
+![Build](https://img.shields.io/github/actions/workflow/status/NullMeDev/NullFork/main.yml)
+
 A high-performance, comprehensive web scraping and proxy management tool designed for security research and competitive analysis. NullScrape integrates advanced proxy harvesting, validation, payment gateway detection, and automated reconnaissance capabilities into a unified platform.
 
 ## Overview
@@ -269,7 +273,7 @@ checker_profiles:
     retries: 5
 ```
 
-## 📈 Performance Optimization
+## Performance Optimization
 
 ### High-Performance Setup
 - **Workers**: 200-500 (depending on system resources)
@@ -284,7 +288,7 @@ checker_profiles:
 - Database sharding for large datasets
 - CDN integration for web interface
 
-## 🐳 Docker Deployment
+## Docker Deployment
 
 ```yaml
 version: '3.8'
@@ -314,7 +318,7 @@ services:
       - "6379:6379"
 ```
 
-## 🔐 Security
+## Security
 
 - **Rate limiting** to prevent abuse
 - **Input validation** for all user inputs
@@ -323,7 +327,7 @@ services:
 - **Access logging** for audit trails
 - **API authentication** with tokens
 
-## 📊 Monitoring & Alerts
+## Monitoring & Alerts
 
 ### Built-in Monitoring
 - Real-time performance metrics
@@ -339,7 +343,7 @@ services:
 - Daily/weekly reports
 - Custom alert rules
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -347,11 +351,11 @@ services:
 4. Add tests if applicable
 5. Submit a pull request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **NullVectorBeta** - Proxy scraping and gateway detection foundations
 - **universal-checker** - High-performance checking architecture
@@ -359,4 +363,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ by 0CoolDev**
+**Built by NullMeDev**

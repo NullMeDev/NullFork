@@ -2,23 +2,28 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"enhanced-gateway-scraper/internal/config"
+	"enhanced-gateway-scraper/internal/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	// Configure logging
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetLevel(logrus.InfoLevel)
-	
-	logrus.Info("Starting Proxy Monitor Service...")
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		logrus.WithError(err).Fatal("Failed to load configuration")
+	}
+
+	// Initialize logger with configuration
+	appLogger := logger.InitLogger(cfg.LogLevel, cfg.LogFormat, cfg.LogIncludeCaller)
+	appLogger.Info("Starting Proxy Monitor Service...")
 
 	// Create Gin router
 	r := gin.Default()
@@ -49,9 +54,9 @@ func main() {
 	}
 
 	go func() {
-		logrus.Info("Starting monitor server on port 8082")
+		appLogger.Info("Starting monitor server on port 8082")
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logrus.WithError(err).Fatal("Failed to start monitor server")
+			appLogger.WithError(err).Fatal("Failed to start monitor server")
 		}
 	}()
 
@@ -60,14 +65,14 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	logrus.Info("Shutting down monitor server...")
+	appLogger.Info("Shutting down monitor server...")
 	
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	
 	if err := srv.Shutdown(ctx); err != nil {
-		logrus.WithError(err).Fatal("Server forced to shutdown")
+		appLogger.WithError(err).Fatal("Server forced to shutdown")
 	}
 
-	logrus.Info("Monitor service stopped")
+	appLogger.Info("Monitor service stopped")
 }

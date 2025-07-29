@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Gateway Scraper - v2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2d2d5f 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(0, 255, 127, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(15, 15, 35, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 127, 0.3);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            color: #00ff7f;
+            text-align: center;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
+        }
+
+        .header .subtitle {
+            text-align: center;
+            color: #888;
+            margin-top: 0.5rem;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Scan configuration panel */
+        .config-panel {
+            background: rgba(42, 42, 84, 0.8);
+            border: 1px solid rgba(0, 255, 127, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .config-title {
+            color: #00ff7f;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .config-section {
+            background: rgba(30, 30, 60, 0.5);
+            border: 1px solid rgba(0, 255, 127, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            color: #00ff7f;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 255, 127, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Form controls */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(0, 255, 127, 0.3);
+            border-radius: 6px;
+            background: rgba(20, 20, 40, 0.8);
+            color: #e0e0e0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #00ff7f;
+            box-shadow: 0 0 10px rgba(0, 255, 127, 0.3);
+        }
+
+        /* Categories grid */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(30, 30, 60, 0.5);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .category-item:hover {
+            background: rgba(0, 255, 127, 0.1);
+        }
+
+        .category-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00ff7f, #00cc66);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(0, 255, 127, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 127, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(80, 80, 160, 0.8);
+            color: #e0e0e0;
+            border: 1px solid rgba(0, 255, 127, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 127, 0.2);
+        }
+
+        .btn-danger {
+            background: rgba(255, 64, 64, 0.8);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 64, 64, 1);
+        }
+
+        /* Control buttons */
+        .control-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* Results panel */
+        .results-panel {
+            background: rgba(42, 42, 84, 0.8);
+            border: 1px solid rgba(0, 255, 127, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .results-title {
+            color: #00ff7f;
+            font-size: 1.5rem;
+        }
+
+        .results-stats {
+            display: flex;
+            gap: 2rem;
+            color: #ccc;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ff7f;
+        }
+
+        /* Results table */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 255, 127, 0.2);
+        }
+
+        .results-table th {
+            background: rgba(0, 255, 127, 0.1);
+            color: #00ff7f;
+            font-weight: 600;
+        }
+
+        .results-table tr:hover {
+            background: rgba(0, 255, 127, 0.05);
+        }
+
+        /* Status indicators */
+        .status-success {
+            color: #00ff7f;
+            font-weight: bold;
+        }
+
+        .status-failed {
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        .status-scanning {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+
+        /* Gateway badges */
+        .gateway-badge {
+            display: inline-block;
+            background: rgba(0, 255, 127, 0.2);
+            color: #00ff7f;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin: 0.1rem;
+            border: 1px solid rgba(0, 255, 127, 0.3);
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(30, 30, 60, 0.8);
+            border-radius: 3px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff7f, #00cc66);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
+        }
+
+        /* Modal for proxy management */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(42, 42, 84, 0.95);
+            border: 1px solid rgba(0, 255, 127, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            color: #00ff7f;
+            font-size: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #ff4444;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+            }
+
+            .results-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .results-stats {
+                justify-content: center;
+            }
+
+            .results-table {
+                font-size: 0.9rem;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 255, 127, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ff7f;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(42, 42, 84, 0.95);
+            border: 1px solid rgba(0, 255, 127, 0.3);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            color: #e0e0e0;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-color: rgba(0, 255, 127, 0.6);
+            background: rgba(0, 255, 127, 0.1);
+        }
+
+        .toast.error {
+            border-color: rgba(255, 68, 68, 0.6);
+            background: rgba(255, 68, 68, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>Enhanced Gateway Scraper</h1>
+        <div class="subtitle">Comprehensive Payment Gateway Detection Tool v2.0</div>
+    </div>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Configuration Panel -->
+        <div class="config-panel">
+            <div class="config-title">📊 Scan Configuration</div>
+            
+            <div class="config-grid">
+                <!-- Scan Mode -->
+                <div class="config-section">
+                    <div class="section-title">🔍 Scan Mode</div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="radio" name="scanMode" value="categories" checked>
+                            Category-based Search
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="radio" name="scanMode" value="query">
+                            Custom Search Query
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="radio" name="scanMode" value="url">
+                            Single URL Scan
+                        </label>
+                    </div>
+                    
+                    <div class="form-group" id="queryInput" style="display: none;">
+                        <label for="customQuery">Search Query:</label>
+                        <input type="text" id="customQuery" placeholder="e.g., stripe checkout integration">
+                    </div>
+                    
+                    <div class="form-group" id="urlInput" style="display: none;">
+                        <label for="singleUrl">Website URL:</label>
+                        <input type="url" id="singleUrl" placeholder="https://example.com">
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="config-section" id="categoriesSection">
+                    <div class="section-title">🎯 Target Categories</div>
+                    
+                    <div class="categories-grid">
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-payment" value="payment" checked>
+                            <label for="cat-payment">💳 Payment Gateways</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-crypto" value="crypto">
+                            <label for="cat-crypto">₿ Cryptocurrency</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-ecommerce" value="ecommerce">
+                            <label for="cat-ecommerce">🛒 E-commerce</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-fintech" value="fintech">
+                            <label for="cat-fintech">🏦 Fintech</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-proxy" value="proxy">
+                            <label for="cat-proxy">🔐 Proxy Services</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-vpn" value="vpn">
+                            <label for="cat-vpn">🔒 VPN Services</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-ide" value="ide">
+                            <label for="cat-ide">💻 Development Tools</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-ai" value="ai">
+                            <label for="cat-ai">🤖 AI Platforms</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-games" value="games">
+                            <label for="cat-games">🎮 Gaming Platforms</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-sports" value="sports">
+                            <label for="cat-sports">⚽ Sports</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-hosting" value="hosting">
+                            <label for="cat-hosting">☁️ Cloud Hosting</label>
+                        </div>
+                        <div class="category-item">
+                            <input type="checkbox" id="cat-api" value="api">
+                            <label for="cat-api">🔌 API Services</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proxy Configuration -->
+                <div class="config-section">
+                    <div class="section-title">🌐 Proxy Settings</div>
+                    
+                    <div class="form-group">
+                        <label for="proxyType">Proxy Type:</label>
+                        <select id="proxyType">
+                            <option value="none">No Proxy</option>
+                            <option value="http">HTTP</option>
+                            <option value="https">HTTPS</option>
+                            <option value="socks4">SOCKS4</option>
+                            <option value="socks5">SOCKS5</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" onclick="openProxyModal()">
+                            🔧 Manage Proxies
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Proxy Status:</label>
+                        <div id="proxyStatus">No proxies loaded</div>
+                    </div>
+                </div>
+
+                <!-- Scan Settings -->
+                <div class="config-section">
+                    <div class="section-title">⚙️ Scan Settings</div>
+                    
+                    <div class="form-group">
+                        <label for="siteLimit">Sites to Scan:</label>
+                        <input type="number" id="siteLimit" value="50" min="1" max="500">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="workers">Concurrent Workers:</label>
+                        <input type="number" id="workers" value="10" min="1" max="50">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="timeout">Timeout (seconds):</label>
+                        <input type="number" id="timeout" value="30" min="5" max="120">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outputFormat">Output Format:</label>
+                        <select id="outputFormat">
+                            <option value="gui">GUI View</option>
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                            <option value="table">Table</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
+                <button type="button" class="btn btn-primary" onclick="startScan()" id="startBtn">
+                    🚀 Start Scan
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="stopScan()" id="stopBtn" disabled>
+                    ⏹️ Stop Scan
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="clearResults()">
+                    🗑️ Clear Results
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="exportResults()">
+                    💾 Export Results
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="results-panel">
+            <div class="results-header">
+                <div class="results-title">📈 Scan Results</div>
+                <div class="results-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalScanned">0</span>
+                        <span>Scanned</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="gatewaysFound">0</span>
+                        <span>Gateways</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="successRate">0%</span>
+                        <span>Success Rate</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="scanDuration">0s</span>
+                        <span>Duration</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <!-- Results Table -->
+            <div style="overflow-x: auto;">
+                <table class="results-table" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Status</th>
+                            <th>Gateways</th>
+                            <th>Confidence</th>
+                            <th>Method</th>
+                            <th>Duration</th>
+                            <th>Proxy</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #888; padding: 2rem;">
+                                No scan results yet. Configure your scan settings and click "Start Scan" to begin.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proxy Management Modal -->
+    <div class="modal" id="proxyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🔧 Proxy Management</div>
+                <button class="close-btn" onclick="closeProxyModal()">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="proxyInput">Proxy List (one per line, format: host:port):</label>
+                <textarea id="proxyInput" rows="10" placeholder="127.0.0.1:8080&#10;192.168.1.1:3128&#10;proxy.example.com:8080"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <button type="button" class="btn btn-secondary" onclick="testProxies()">
+                    🧪 Test Proxies
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="loadProxiesFromFile()">
+                    📁 Load from File
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveProxies()">
+                    💾 Save Proxies
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label>Proxy Status:</label>
+                <div id="proxyTestResults">Enter proxies and click "Test Proxies" to validate them.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let scanActive = false;
+        let scanResults = [];
+        let scanStartTime = null;
+        let proxies = [];
+
+        // Initialize particles background
+        function initParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = (Math.random() * 4 + 1) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Scan mode handling
+        document.querySelectorAll('input[name="scanMode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const queryInput = document.getElementById('queryInput');
+                const urlInput = document.getElementById('urlInput');
+                const categoriesSection = document.getElementById('categoriesSection');
+
+                // Hide all inputs first
+                queryInput.style.display = 'none';
+                urlInput.style.display = 'none';
+                
+                // Show relevant input based on selection
+                if (this.value === 'query') {
+                    queryInput.style.display = 'block';
+                    categoriesSection.style.opacity = '0.5';
+                } else if (this.value === 'url') {
+                    urlInput.style.display = 'block';
+                    categoriesSection.style.opacity = '0.5';
+                } else {
+                    categoriesSection.style.opacity = '1';
+                }
+            });
+        });
+
+        // Start scan function
+        async function startScan() {
+            if (scanActive) return;
+
+            const config = getScanConfig();
+            if (!validateConfig(config)) return;
+
+            try {
+                const response = await fetch('/api/scan/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        scan_mode: config.scanMode,
+                        categories: config.categories,
+                        query: config.query,
+                        url: config.url,
+                        proxy_type: config.proxyType,
+                        limit: config.limit,
+                        workers: config.workers,
+                        timeout: config.timeout,
+                        output_format: config.outputFormat
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    scanActive = true;
+                    scanStartTime = Date.now();
+                    updateUI(true);
+                    clearResults();
+                    showToast('Scan started successfully!', 'success');
+                    
+                    // Start polling for updates
+                    startPolling();
+                } else {
+                    showToast(result.error || 'Failed to start scan', 'error');
+                }
+            } catch (error) {
+                showToast('Error starting scan: ' + error.message, 'error');
+            }
+        }
+
+        // Stop scan function
+        async function stopScan() {
+            if (!scanActive) return;
+            
+            try {
+                const response = await fetch('/api/scan/stop', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    scanActive = false;
+                    updateUI(false);
+                    showToast('Scan stopped successfully', 'success');
+                    stopPolling();
+                } else {
+                    showToast(result.error || 'Failed to stop scan', 'error');
+                }
+            } catch (error) {
+                showToast('Error stopping scan: ' + error.message, 'error');
+            }
+        }
+
+        // Polling functions
+        let pollingInterval = null;
+
+        function startPolling() {
+            if (pollingInterval) return;
+            
+            pollingInterval = setInterval(async () => {
+                try {
+                    // Get scan status
+                    const statusResponse = await fetch('/api/scan/status');
+                    const statusResult = await statusResponse.json();
+                    
+                    if (statusResult.success && statusResult.data.active) {
+                        updateStatsFromAPI(statusResult.data.stats);
+                        updateProgress(statusResult.data.progress);
+                    } else {
+                        scanActive = false;
+                        updateUI(false);
+                        stopPolling();
+                        showToast('Scan completed!', 'success');
+                    }
+                    
+                    // Get scan results
+                    const resultsResponse = await fetch('/api/scan/results');
+                    const resultsResult = await resultsResponse.json();
+                    
+                    if (resultsResult.success) {
+                        updateResultsTable(resultsResult.data);
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            }, 2000); // Poll every 2 seconds
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+
+        function updateProgress(progress) {
+            const progressBar = document.getElementById('progressBar');
+            const progressContainer = document.getElementById('progressContainer');
+            
+            if (progress > 0) {
+                progressContainer.style.display = 'block';
+                progressBar.style.width = progress + '%';
+            } else {
+                progressContainer.style.display = 'none';
+            }
+        }
+
+        function updateStatsFromAPI(stats) {
+            document.getElementById('totalScanned').textContent = stats.total_scanned || 0;
+            document.getElementById('gatewaysFound').textContent = stats.gateways_found || 0;
+            document.getElementById('successRate').textContent = (stats.success_rate || 0).toFixed(1) + '%';
+            document.getElementById('scanDuration').textContent = Math.floor((stats.duration || 0) / 1000) + 's';
+        }
+
+        function updateResultsTable(results) {
+            if (!results || results.length === 0) return;
+            
+            const tbody = document.getElementById('resultsBody');
+            
+            // Clear existing results
+            tbody.innerHTML = '';
+            
+            results.forEach(result => {
+                addResultToTableFromAPI(result);
+            });
+            
+            scanResults = results;
+        }
+
+        function addResultToTableFromAPI(result) {
+            const tbody = document.getElementById('resultsBody');
+            const row = document.createElement('tr');
+            
+            const statusClass = result.status === 'success' ? 'status-success' : 
+                               result.status === 'failed' ? 'status-failed' : 'status-scanning';
+            const statusIcon = result.status === 'success' ? '✅' : 
+                              result.status === 'failed' ? '❌' : '⏳';
+            
+            const gatewayBadges = result.gateways.map(gateway => 
+                `<span class="gateway-badge">${gateway}</span>`
+            ).join(' ');
+            
+            row.innerHTML = `
+                <td>${result.url}</td>
+                <td><span class="${statusClass}">${statusIcon} ${result.status}</span></td>
+                <td>${gatewayBadges || 'None'}</td>
+                <td>${result.confidence ? result.confidence.toFixed(2) : '0.00'}</td>
+                <td>${result.method}</td>
+                <td>${result.duration}ms</td>
+                <td>${result.proxy}</td>
+            `;
+            
+            tbody.appendChild(row);
+        }
+
+        // Get scan configuration
+        function getScanConfig() {
+            const scanMode = document.querySelector('input[name="scanMode"]:checked').value;
+            const categories = [];
+            
+            if (scanMode === 'categories') {
+                document.querySelectorAll('.category-item input[type="checkbox"]:checked').forEach(cb => {
+                    categories.push(cb.value);
+                });
+            }
+
+            return {
+                scanMode,
+                categories,
+                query: document.getElementById('customQuery').value,
+                url: document.getElementById('singleUrl').value,
+                proxyType: document.getElementById('proxyType').value,
+                limit: parseInt(document.getElementById('siteLimit').value),
+                workers: parseInt(document.getElementById('workers').value),
+                timeout: parseInt(document.getElementById('timeout').value),
+                outputFormat: document.getElementById('outputFormat').value
+            };
+        }
+
+        // Validate configuration
+        function validateConfig(config) {
+            if (config.scanMode === 'query' && !config.query.trim()) {
+                showToast('Please enter a search query', 'error');
+                return false;
+            }
+            
+            if (config.scanMode === 'url' && !config.url.trim()) {
+                showToast('Please enter a URL to scan', 'error');
+                return false;
+            }
+            
+            if (config.scanMode === 'categories' && config.categories.length === 0) {
+                showToast('Please select at least one category', 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Simulate scanning process
+        async function simulateScan(config) {
+            const progressBar = document.getElementById('progressBar');
+            const progressContainer = document.getElementById('progressContainer');
+            progressContainer.style.display = 'block';
+
+            const totalSites = config.limit;
+            let scannedSites = 0;
+
+            // Simulate scanning multiple sites
+            for (let i = 0; i < totalSites && scanActive; i++) {
+                await new Promise(resolve => setTimeout(resolve, 100)); // Simulate scan time
+                
+                scannedSites++;
+                const progress = (scannedSites / totalSites) * 100;
+                progressBar.style.width = progress + '%';
+
+                // Simulate finding gateways occasionally
+                if (Math.random() < 0.3) {
+                    const result = generateMockResult(i, config);
+                    addResultToTable(result);
+                    scanResults.push(result);
+                }
+
+                updateStats();
+            }
+
+            progressContainer.style.display = 'none';
+        }
+
+        // Generate mock scan result
+        function generateMockResult(index, config) {
+            const gateways = ['stripe', 'paypal', 'square', 'braintree', 'adyen', 'razorpay'];
+            const methods = ['script_analysis', 'network_analysis', 'dom_analysis', 'form_analysis'];
+            const domains = ['example.com', 'test-site.org', 'demo-shop.net', 'payment-demo.com'];
+            
+            const gateway = gateways[Math.floor(Math.random() * gateways.length)];
+            const method = methods[Math.floor(Math.random() * methods.length)];
+            const domain = domains[Math.floor(Math.random() * domains.length)];
+            
+            return {
+                url: `https://${domain}/page-${index + 1}`,
+                status: 'success',
+                gateway: gateway,
+                confidence: (0.7 + Math.random() * 0.3).toFixed(2),
+                method: method,
+                duration: Math.floor(Math.random() * 3000 + 500),
+                proxy: config.proxyType !== 'none' ? getRandomProxy() : 'None'
+            };
+        }
+
+        // Add result to table
+        function addResultToTable(result) {
+            const tbody = document.getElementById('resultsBody');
+            
+            // Remove "no results" message if it exists
+            if (tbody.children.length === 1 && tbody.children[0].children.length === 1) {
+                tbody.innerHTML = '';
+            }
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${result.url}</td>
+                <td><span class="status-success">✅ ${result.status}</span></td>
+                <td><span class="gateway-badge">${result.gateway}</span></td>
+                <td>${result.confidence}</td>
+                <td>${result.method}</td>
+                <td>${result.duration}ms</td>
+                <td>${result.proxy}</td>
+            `;
+            
+            tbody.appendChild(row);
+        }
+
+        // Update scan statistics
+        function updateStats() {
+            document.getElementById('totalScanned').textContent = scanResults.length;
+            document.getElementById('gatewaysFound').textContent = scanResults.length;
+            
+            const successRate = scanResults.length > 0 ? 100 : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+            
+            const duration = scanStartTime ? Math.floor((Date.now() - scanStartTime) / 1000) : 0;
+            document.getElementById('scanDuration').textContent = duration + 's';
+        }
+
+        // Update UI state
+        function updateUI(scanning) {
+            document.getElementById('startBtn').disabled = scanning;
+            document.getElementById('stopBtn').disabled = !scanning;
+            
+            if (scanning) {
+                document.getElementById('startBtn').innerHTML = '<span class="loading"></span> Scanning...';
+            } else {
+                document.getElementById('startBtn').innerHTML = '🚀 Start Scan';
+            }
+        }
+
+        // Clear results
+        function clearResults() {
+            scanResults = [];
+            document.getElementById('resultsBody').innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #888; padding: 2rem;">
+                        No scan results yet. Configure your scan settings and click "Start Scan" to begin.
+                    </td>
+                </tr>
+            `;
+            updateStats();
+        }
+
+        // Export results
+        function exportResults() {
+            if (scanResults.length === 0) {
+                showToast('No results to export', 'error');
+                return;
+            }
+
+            const format = document.getElementById('outputFormat').value;
+            let content = '';
+            let filename = `gateway_scan_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}`;
+
+            switch (format) {
+                case 'json':
+                    content = JSON.stringify(scanResults, null, 2);
+                    filename += '.json';
+                    break;
+                case 'csv':
+                    content = generateCSV(scanResults);
+                    filename += '.csv';
+                    break;
+                case 'table':
+                    content = generateTable(scanResults);
+                    filename += '.txt';
+                    break;
+                default:
+                    showToast('Please select a valid export format', 'error');
+                    return;
+            }
+
+            downloadFile(content, filename);
+            showToast('Results exported successfully!', 'success');
+        }
+
+        // Generate CSV content
+        function generateCSV(results) {
+            const headers = ['URL', 'Status', 'Gateway', 'Confidence', 'Method', 'Duration', 'Proxy'];
+            const csvContent = [
+                headers.join(','),
+                ...results.map(result => [
+                    result.url,
+                    result.status,
+                    result.gateway,
+                    result.confidence,
+                    result.method,
+                    result.duration,
+                    result.proxy
+                ].join(','))
+            ].join('\n');
+            
+            return csvContent;
+        }
+
+        // Generate table content
+        function generateTable(results) {
+            const headers = ['URL', 'Status', 'Gateway', 'Confidence', 'Method', 'Duration', 'Proxy'];
+            let content = headers.join('\t') + '\n';
+            content += '='.repeat(80) + '\n';
+            
+            results.forEach(result => {
+                content += [
+                    result.url,
+                    result.status,
+                    result.gateway,
+                    result.confidence,
+                    result.method,
+                    result.duration + 'ms',
+                    result.proxy
+                ].join('\t') + '\n';
+            });
+            
+            return content;
+        }
+
+        // Download file
+        function downloadFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Proxy management functions
+        function openProxyModal() {
+            document.getElementById('proxyModal').style.display = 'block';
+        }
+
+        function closeProxyModal() {
+            document.getElementById('proxyModal').style.display = 'none';
+        }
+
+        async function saveProxies() {
+            const proxyInput = document.getElementById('proxyInput').value;
+            const proxyLines = proxyInput.split('\n').filter(line => line.trim());
+            
+            try {
+                const response = await fetch('/api/proxy/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        proxies: proxyLines
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeProxyModal();
+                    showToast(`Added ${result.data.added} proxies successfully`, 'success');
+                    loadProxyList(); // Refresh proxy status
+                } else {
+                    showToast(result.error || 'Failed to add proxies', 'error');
+                }
+            } catch (error) {
+                showToast('Error adding proxies: ' + error.message, 'error');
+            }
+        }
+
+        async function testProxies() {
+            const proxyInput = document.getElementById('proxyInput').value;
+            const proxyLines = proxyInput.split('\n').filter(line => line.trim());
+            
+            if (proxyLines.length === 0) {
+                showToast('Please enter some proxies to test', 'error');
+                return;
+            }
+            
+            document.getElementById('proxyTestResults').innerHTML = 'Testing proxies...';
+            
+            try {
+                // First add the proxies
+                await fetch('/api/proxy/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        proxies: proxyLines
+                    })
+                });
+                
+                // Then test them
+                const response = await fetch('/api/proxy/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('proxyTestResults').innerHTML = 'Proxy testing started. Check the proxy status for results.';
+                    
+                    // Poll for updated proxy status
+                    setTimeout(() => loadProxyList(), 3000);
+                } else {
+                    document.getElementById('proxyTestResults').innerHTML = result.error || 'Failed to test proxies';
+                }
+            } catch (error) {
+                document.getElementById('proxyTestResults').innerHTML = 'Error testing proxies: ' + error.message;
+            }
+        }
+
+        async function loadProxyList() {
+            try {
+                const response = await fetch('/api/proxy/list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const proxies = result.data;
+                    const status = proxies.length > 0 ? 
+                        `${proxies.length} proxies loaded (${proxies.filter(p => p.working).length} working)` : 
+                        'No proxies loaded';
+                    document.getElementById('proxyStatus').textContent = status;
+                } else {
+                    document.getElementById('proxyStatus').textContent = 'Error loading proxy status';
+                }
+            } catch (error) {
+                console.error('Error loading proxy list:', error);
+            }
+        }
+
+        function loadProxiesFromFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt,.list';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('proxyInput').value = e.target.result;
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        function updateProxyStatus() {
+            const status = proxies.length > 0 ? 
+                `${proxies.length} proxies loaded` : 
+                'No proxies loaded';
+            document.getElementById('proxyStatus').textContent = status;
+        }
+
+        function getRandomProxy() {
+            if (proxies.length === 0) return 'None';
+            const proxy = proxies[Math.floor(Math.random() * proxies.length)];
+            return `${proxy.host}:${proxy.port}`;
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initParticles();
+            loadProxyList(); // Load proxy status from API
+            
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+                const modal = document.getElementById('proxyModal');
+                if (event.target === modal) {
+                    closeProxyModal();
+                }
+            };
+        });
+    </script>
+</body>
+</html>

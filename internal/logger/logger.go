@@ -23,6 +23,8 @@ func InitLogger(logLevel, logFormat string, includeCaller bool) *logrus.Logger {
 		log.SetLevel(logrus.ErrorLevel)
 	case "FATAL":
 		log.SetLevel(logrus.FatalLevel)
+	case "TRACE":
+		log.SetLevel(logrus.TraceLevel)
 	default:
 		log.SetLevel(logrus.InfoLevel)
 	}
@@ -30,11 +32,25 @@ func InitLogger(logLevel, logFormat string, includeCaller bool) *logrus.Logger {
 	if logFormat == "JSON" {
 		log.SetFormatter(&logrus.JSONFormatter{
 			TimestampFormat: time.RFC3339,
+			DisableTimestamp: false,
+			DisableHTMLEscape: false,
+			DataKey: "fields",
+			FieldMap: logrus.FieldMap{
+				logrus.FieldKeyTime:  "timestamp",
+				logrus.FieldKeyLevel: "level",
+				logrus.FieldKeyMsg:   "message",
+				logrus.FieldKeyFunc:  "caller",
+				logrus.FieldKeyFile:  "file",
+			},
 		})
 	} else if logFormat == "TEXT" {
 		formatter := &logrus.TextFormatter{
 			FullTimestamp:   true,
 			TimestampFormat: time.RFC3339,
+			ForceColors:     true,
+			DisableColors:   false,
+			DisableQuote:    false,
+			QuoteEmptyFields: true,
 		}
 		log.SetFormatter(formatter)
 	}
@@ -42,6 +58,13 @@ func InitLogger(logLevel, logFormat string, includeCaller bool) *logrus.Logger {
 	if includeCaller {
 		log.SetReportCaller(true)
 	}
+
+	// Add context fields for better tracing
+	log.WithFields(logrus.Fields{
+		"service": "enhanced-gateway-scraper",
+		"version": "1.0.0",
+		"pid": os.Getpid(),
+	})
 
 	return log
 }

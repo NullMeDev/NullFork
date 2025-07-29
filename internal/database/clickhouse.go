@@ -147,10 +147,10 @@ func (c *ClickHouseClient) InsertCheckResult(result types.CheckResult) error {
 		proxyHost, proxyPort, result.Latency, result.Timestamp)
 }
 
-func (c *ClickHouseClient) GetProxies(limit int) ([]types.Proxy, error) {
+func (c *ClickHouseClient) GetProxies(ctx context.Context, limit int) ([]types.Proxy, error) {
 	query := `SELECT id, host, port, type, username, password, country, city, isp, anonymity, working, latency, quality_score, last_test, fail_count, success_count, created_at, updated_at FROM proxies WHERE working = 1 ORDER BY quality_score DESC LIMIT ?`
 	
-	rows, err := c.conn.Query(context.Background(), query, limit)
+	rows, err := c.conn.Query(ctx, query, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -174,10 +174,65 @@ func (c *ClickHouseClient) GetProxies(limit int) ([]types.Proxy, error) {
 	return proxies, nil
 }
 
-func (c *ClickHouseClient) GetGateways(domain string) ([]types.Gateway, error) {
+func (c *ClickHouseClient) GetGateways(ctx context.Context, limit int) ([]types.Gateway, error) {
+	query := `SELECT id, domain, url, gateway_type, gateway_name, confidence, detection_method, patterns, metadata, screenshot, status_code, response_size, load_time, created_at, updated_at, last_checked FROM gateways ORDER BY confidence DESC LIMIT ?`
+	
+	rows, err := c.conn.Query(ctx, query, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var gateways []types.Gateway
+	for rows.Next() {
+		var gateway types.Gateway
+		err := rows.Scan(&gateway.ID, &gateway.Domain, &gateway.URL, &gateway.GatewayType, &gateway.GatewayName,
+			&gateway.Confidence, &gateway.DetectionMethod, &gateway.Patterns, &gateway.Metadata,
+			&gateway.Screenshot, &gateway.StatusCode, &gateway.ResponseSize, &gateway.LoadTime,
+			&gateway.CreatedAt, &gateway.UpdatedAt, &gateway.LastChecked)
+		if err != nil {
+			continue
+		}
+		gateways = append(gateways, gateway)
+	}
+
+	return gateways, nil
+}
+
+// StoreProxy stores a proxy in the database
+func (c *ClickHouseClient) StoreProxy(ctx context.Context, proxy types.Proxy) error {
+	return c.InsertProxy(proxy)
+}
+
+// GetProxyCount returns the total number of proxies
+func (c *ClickHouseClient) GetProxyCount(ctx context.Context) (int, error) {
+	var count int
+	query := `SELECT COUNT(*) FROM proxies`
+	err := c.conn.QueryRow(ctx, query).Scan(&count)
+	return count, err
+}
+
+// GetWorkingProxyCount returns the number of working proxies
+func (c *ClickHouseClient) GetWorkingProxyCount(ctx context.Context) (int, error) {
+	var count int
+	query := `SELECT COUNT(*) FROM proxies WHERE working = 1`
+	err := c.conn.QueryRow(ctx, query).Scan(&count)
+	return count, err
+}
+
+// GetGatewayCount returns the total number of gateways
+func (c *ClickHouseClient) GetGatewayCount(ctx context.Context) (int, error) {
+	var count int
+	query := `SELECT COUNT(*) FROM gateways`
+	err := c.conn.QueryRow(ctx, query).Scan(&count)
+	return count, err
+}
+
+// GetGatewaysByDomain returns gateways for a specific domain
+func (c *ClickHouseClient) GetGatewaysByDomain(ctx context.Context, domain string) ([]types.Gateway, error) {
 	query := `SELECT id, domain, url, gateway_type, gateway_name, confidence, detection_method, patterns, metadata, screenshot, status_code, response_size, load_time, created_at, updated_at, last_checked FROM gateways WHERE domain = ? ORDER BY confidence DESC`
 	
-	rows, err := c.conn.Query(context.Background(), query, domain)
+	rows, err := c.conn.Query(ctx, query, domain)
 	if err != nil {
 		return nil, err
 	}

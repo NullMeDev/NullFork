@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # Main Enhanced Gateway Scraper application
@@ -7,13 +6,16 @@ services:
     ports:
       - "8080:8080"
       - "9090:9090"
+    env_file:
+      - .env
     environment:
-      - CLICKHOUSE_DSN=clickhouse:9000
-      - DISCORD_WEBHOOK=https://discord.com/api/webhooks/1384600052970029217/kObxR_M65HSJIv-qUdAqQssFUV-Cl5M93yxUF1cY97xd-Q5soIfG7tvd08XhZ8Dp6fVt
-      - MAX_WORKERS=100
-      - PROXY_TIMEOUT=10s
-      - LOG_LEVEL=INFO
-      - LOG_FORMAT=JSON
+      - CLICKHOUSE_DSN=${CLICKHOUSE_DSN}
+      - DISCORD_WEBHOOK=${DISCORD_WEBHOOK}
+      - MAX_WORKERS=${MAX_WORKERS}
+      - PROXY_TIMEOUT=${PROXY_TIMEOUT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_FORMAT=${LOG_FORMAT}
+      - PRODUCTION_MODE=${PRODUCTION_MODE}
     depends_on:
       - clickhouse
       - redis
@@ -29,8 +31,8 @@ services:
   clickhouse:
     image: clickhouse/clickhouse-server:latest
     ports:
-      - "8123:8123"
-      - "9001:9000"
+      - "8124:8123"
+      - "9002:9000"
     environment:
       - CLICKHOUSE_DB=gateway_scraper
       - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
@@ -48,7 +50,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6380:6379"
+      - "6381:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
@@ -76,8 +78,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.monitor
+    env_file:
+      - .env
     environment:
-      - CLICKHOUSE_DSN=clickhouse:9000
+      - CLICKHOUSE_DSN=${CLICKHOUSE_DSN}
       - CHECK_INTERVAL=5m
     depends_on:
       - clickhouse
@@ -105,7 +109,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9091:9090"
+      - "9092:9090"
     volumes:
       - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -124,9 +128,11 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+      - "3001:3000"
+    env_file:
+      - .env
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
     volumes:
       - grafana_data:/var/lib/grafana
       - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards

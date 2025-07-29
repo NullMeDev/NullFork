@@ -1,7 +1,7 @@
 # Dockerfile for Enhanced Gateway Scraper
 
 # Use a minimal base image with Go installed
-FROM golang:1.18-alpine
+FROM golang:1.24-alpine
 
 # Set environment variables for maximum efficiency
 ENV GO111MODULE=on
