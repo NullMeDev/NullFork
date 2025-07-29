@@ -1,46 +1,55 @@
-# Enhanced Gateway Scraper & Checker
+# NullScrape - Enhanced Gateway Scraper
 
-A high-performance, unified gateway scraper and checker built by integrating the best features from NullVectorBeta and universal-checker. This tool combines concurrent proxy harvesting, validation, payment gateway detection, and account checking into one comprehensive solution.
+A high-performance, comprehensive web scraping and proxy management tool designed for security research and competitive analysis. NullScrape integrates advanced proxy harvesting, validation, payment gateway detection, and automated reconnaissance capabilities into a unified platform.
 
-## 🚀 Features
+## Overview
 
-### 🌐 Proxy Management
-- **Concurrent proxy harvesting** from multiple sources (HTTP, HTTPS, SOCKS4, SOCKS5)
-- **Real-time proxy validation** with anonymity and latency checking
-- **Smart proxy rotation** and health monitoring
-- **Auto-scraping** from 50+ reliable proxy sources
-- **Proxy quality scoring** and automatic filtering
+NullScrape is a Go-based headless browser scraping tool with advanced features including proxy rotation, payment gateway fingerprint matching, and professional GUI-styled output. The tool is optimized for security professionals, researchers, and developers requiring robust web reconnaissance capabilities.
 
-### 💳 Payment Gateway Detection
-- **Advanced payment gateway detection** for Stripe, PayPal, Square, Authorize.Net, and 30+ more
-- **Domain scanning** with intelligent website analysis
-- **JavaScript rendering** for dynamic payment gateway detection
-- **Rate-limited scanning** to respect target servers
-- **Comprehensive reporting** with detailed findings
+## Key Features
 
-### 🔐 Account Checking
-- **Multi-format config support** (.opk, .svb, .loli)
-- **High-performance checking** with 500+ CPM capability
-- **Smart retry logic** with exponential backoff
-- **Account validation** across multiple platforms
-- **Live statistics** and progress tracking
+### Proxy Management
+- Concurrent proxy harvesting from multiple sources (HTTP, HTTPS, SOCKS4, SOCKS5)
+- Real-time proxy validation with anonymity and latency checking
+- Smart proxy rotation and health monitoring
+- Auto-scraping from 50+ reliable proxy sources
+- Proxy quality scoring and automatic filtering
+- Support for 5-5,000 proxies with improved checking algorithms
 
-### 📊 Data Management
-- **ClickHouse integration** for high-performance data storage
-- **Real-time analytics** and reporting
-- **Data export** in multiple formats (JSON, CSV, TXT)
-- **Historical tracking** and trend analysis
-- **Backup and restore** functionality
+### Payment Gateway Detection
+- Advanced payment gateway fingerprinting for Stripe, PayPal, Square, Authorize.Net, and 30+ providers
+- Domain scanning with intelligent website analysis
+- JavaScript rendering for dynamic payment gateway detection
+- Rate-limited scanning with anti-detection mechanisms
+- Comprehensive reporting with detailed findings
+- Focus on Stripe ecosystem and modern payment processors
 
-### 🔧 Advanced Features
-- **Discord integration** for automated reporting
-- **Health check endpoints** for monitoring
-- **Structured logging** with configurable levels
-- **Docker deployment** with compose setup
-- **GUI interface** with real-time updates
-- **Command-line interface** for automation
+### Security Research Capabilities
+- Multi-format configuration support (.opk, .svb, .loli)
+- High-performance processing with 500+ CPM capability
+- Smart retry logic with exponential backoff
+- Account validation across multiple platforms
+- Live statistics and progress tracking
+- User-agent rotation and anti-detection features
 
-## 🏗️ Architecture
+### Data Management & Analytics
+- ClickHouse integration for high-performance data storage
+- Real-time analytics and reporting
+- Data export in multiple formats (JSON, CSV, TXT)
+- Historical tracking and trend analysis
+- Backup and restore functionality
+- Automated report generation
+
+### Professional Interface
+- Discord integration for automated reporting and alerts
+- Health check endpoints for monitoring
+- Structured logging with configurable levels
+- Docker deployment with compose setup
+- GUI interface with real-time updates
+- Command-line interface for automation
+- RESTful API for integration
+
+## Architecture
 
 ```
 enhanced-gateway-scraper/
@@ -69,7 +78,7 @@ enhanced-gateway-scraper/
 └── scripts/              # Deployment scripts
 ```
 
-## 🚀 Quick Start
+## Installation and Setup
 
 ### Method 1: Docker (Recommended)
 ```bash
@@ -91,49 +100,49 @@ go build -o gateway-scraper-gui cmd/gui/main.go
 ./gateway-scraper-gui
 ```
 
-## 📋 Configuration
+## Configuration
 
-Create a `.env` file:
+Create a `.env` file based on the provided `.env.example`:
 ```env
-# Database
+# Database Configuration
 CLICKHOUSE_DSN=localhost:9000
+CLICKHOUSE_USER=default
+CLICKHOUSE_PASSWORD=your-password
+CLICKHOUSE_DATABASE=gateway_scraper
 
 # Discord Integration
 DISCORD_WEBHOOK=https://discord.com/api/webhooks/your-webhook
+DISCORD_BOT_TOKEN=your-bot-token
+DISCORD_CHANNEL_ID=your-channel-id
 
-# Intervals
+# Performance Settings
+MAX_WORKERS=100
+MAX_CONCURRENT_DOMAINS=500
+PROXY_QUALITY_THRESHOLD=75
+PROXY_VALIDATION_WORKERS=50
+
+# Rate Limiting & Stealth
+ENABLE_RATE_LIMITING=true
+DEFAULT_REQUEST_DELAY=1s
+REQUEST_TIMEOUT=30s
+
+# Scanning Intervals
 PROXY_FETCH_INTERVAL=15m
 PROXY_VALIDATE_INTERVAL=30m
 GATEWAY_SCAN_INTERVAL=2h
-CHECKER_INTERVAL=1h
 
-# Performance
-MAX_WORKERS=200
-PROXY_TIMEOUT=10s
-REQUEST_TIMEOUT=30s
-BATCH_SIZE=1000
+# JavaScript Rendering
+ENABLE_JAVASCRIPT_RENDERING=true
+HEADLESS_BROWSER=true
+BROWSER_TIMEOUT=30s
 
-# Proxy Sources
-AUTO_SCRAPE_PROXIES=true
-PROXY_QUALITY_THRESHOLD=80
-MAX_PROXY_AGE=1h
-
-# Gateway Detection
-GATEWAY_SCAN_DEPTH=3
-MAX_DOMAINS_PER_SCAN=5000
-JAVASCRIPT_RENDERING=true
-
-# Account Checking
-CONFIG_FORMATS=opk,svb,loli
-MAX_CPM_TARGET=1000
-RETRY_ATTEMPTS=3
-
-# Logging
+# Logging & Monitoring
 LOG_LEVEL=INFO
 LOG_FORMAT=JSON
+ENABLE_METRICS=true
 ```
 
-## 🎯 Usage
+## Usage
 
 ### Proxy Management
 ```bash
@@ -180,7 +189,7 @@ LOG_FORMAT=JSON
 ./gateway-scraper schedule --proxy-interval=30m --gateway-interval=2h --check-interval=1h
 ```
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Health & Metrics
 - `GET /health` - Application health status
@@ -205,7 +214,7 @@ LOG_FORMAT=JSON
 - `GET /api/v1/check/results` - Get checking results
 - `POST /api/v1/check/stop` - Stop checking session
 
-## 🔧 Advanced Configuration
+## Advanced Configuration
 
 ### Custom Proxy Sources
 ```yaml
